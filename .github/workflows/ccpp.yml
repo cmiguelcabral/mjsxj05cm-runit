@@ -24,7 +24,7 @@ jobs:
       run: sudo apt-get -y install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
     - name: Compile
-      run: cd compile && make
+      run: package/compile
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v1
