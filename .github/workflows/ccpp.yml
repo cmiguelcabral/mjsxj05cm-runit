@@ -1,0 +1,69 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+      - '*'
+    tags:
+      - '*'
+env:
+  isReleaseCandidate: ${{ contains(github.ref, 'tags') && contains(github.ref, '-rc') }}
+  isFinalRelease: ${{ contains(github.ref, 'tags') && !contains(github.ref, '-rc') }}
+
+jobs:
+  build:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+
+    - name: Checkout source code
+      uses: actions/checkout@v2
+
+    - name: Install ARM cross compiler
+      run: sudo apt-get -y install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+    - name: Compile
+      run: cd compile && make
+
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: runit
+        path: compile/runit
+
+    - name: Release (pre-release)
+      if: env.isReleaseCandidate == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        prerelease: true
+        artifacts: compile/runit
+        
+    - name: Update latest-rc tag
+      if: env.isReleaseCandidate == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: latest-rc
+        allowUpdates: true
+        replacesArtifacts: true
+        prerelease: true
+        artifacts: compile/runit
+
+    - name: Release (final)
+      if: env.isFinalRelease == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: compile/runit
+        
+    - name: Update latest tag
+      if: env.isFinalRelease == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: latest
+        allowUpdates: true
+        replacesArtifacts: true
+        artifacts: compile/runit

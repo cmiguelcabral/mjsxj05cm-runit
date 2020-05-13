@@ -1,0 +1,3 @@
+#!/bin/sh
+# WARNING: This file was auto-generated. Do not edit!
+exec arm-linux-gnueabihf-gcc -O2 -Wall -c ${1+"$@"}

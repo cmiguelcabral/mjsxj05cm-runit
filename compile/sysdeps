@@ -1,0 +1,20 @@
+linux-5.0.0-31-generic-:-:-:genuineintel-000806ec-178bfbff-:-
+#!/bin/sh
+# WARNING: This file was auto-generated. Do not edit!
+exec arm-linux-gnueabihf-gcc -O2 -Wall -c ${1+"$@"}
+#!/bin/sh
+# WARNING: This file was auto-generated. Do not edit!
+main="$1"; shift
+exec arm-linux-gnueabihf-gcc -s -o "$main" "$main".o ${1+"$@"}
+/* sysdep: +dirent */
+/* sysdep: +waitpid */
+/* sysdep: +sigaction */
+/* sysdep: +sigprocmask */
+/* sysdep: +sysselect */
+/* sysdep: -ulong64 */
+/* sysdep: -poll */
+/* sysdep: +mkfifo */
+/* sysdep: +flock */
+/* sysdep: -shortsetgroups */
+/* sysdep: +std reboot */
+/* sysdep: -utmpx */
