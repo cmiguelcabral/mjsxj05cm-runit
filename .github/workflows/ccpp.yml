@@ -32,7 +32,7 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: runit
+        name: runit.zip
         path: compile/runit.zip
 
     - name: Release (pre-release)
