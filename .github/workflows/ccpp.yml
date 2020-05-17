@@ -26,11 +26,14 @@ jobs:
     - name: Compile
       run: cd compile && make
 
+    - name: Package
+      run: cd compile && zip runit.zip runit runsv runsvchdir runsvdir sv svlogd choose chpst load runit-init utmpset
+
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v1
       with:
         name: runit
-        path: compile/runit
+        path: compile/runit.zip
 
     - name: Release (pre-release)
       if: env.isReleaseCandidate == 'true'
@@ -38,7 +41,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         prerelease: true
-        artifacts: compile/runit
+        artifacts: compile/runit.zip
         
     - name: Update latest-rc tag
       if: env.isReleaseCandidate == 'true'
@@ -49,14 +52,14 @@ jobs:
         allowUpdates: true
         replacesArtifacts: true
         prerelease: true
-        artifacts: compile/runit
+        artifacts: compile/runit.zip
 
     - name: Release (final)
       if: env.isFinalRelease == 'true'
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: compile/runit
+        artifacts: compile/runit.zip
         
     - name: Update latest tag
       if: env.isFinalRelease == 'true'
@@ -66,4 +69,4 @@ jobs:
         tag: latest
         allowUpdates: true
         replacesArtifacts: true
-        artifacts: compile/runit
+        artifacts: compile/runit.zip
