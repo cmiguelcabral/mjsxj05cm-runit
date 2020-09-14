@@ -12,38 +12,38 @@ runit-init: load runit-init.o unix.a byte.a
 	./load runit-init unix.a byte.a -static
 
 runsv: load runsv.o unix.a byte.a time.a
-	./load runsv unix.a byte.a time.a
+	./load runsv unix.a byte.a time.a -static
 
 runsvdir: load runsvdir.o unix.a byte.a time.a
-	./load runsvdir unix.a byte.a time.a
+	./load runsvdir unix.a byte.a time.a -static
 
 runsvstat: load runsvstat.o unix.a byte.a time.a
-	./load runsvstat unix.a byte.a time.a
+	./load runsvstat unix.a byte.a time.a -static
 
 runsvctrl: load runsvctrl.o unix.a byte.a
-	./load runsvctrl unix.a byte.a
+	./load runsvctrl unix.a byte.a -static
 
 sv: load sv.o unix.a byte.a time.a
-	./load sv unix.a byte.a time.a
+	./load sv unix.a byte.a time.a -static
 
 svwaitup: load svwaitup.o unix.a byte.a time.a
-	./load svwaitup unix.a byte.a time.a
+	./load svwaitup unix.a byte.a time.a -static
 
 svwaitdown: load svwaitdown.o unix.a byte.a time.a
-	./load svwaitdown unix.a byte.a time.a
+	./load svwaitdown unix.a byte.a time.a -static
 
 utmpset: load utmpset.o unix.a byte.a
-	./load utmpset unix.a byte.a
+	./load utmpset unix.a byte.a -static
 
 runsvchdir: load runsvchdir.o unix.a byte.a
-	./load runsvchdir unix.a byte.a
+	./load runsvchdir unix.a byte.a -static
 
 svlogd: load svlogd.o pmatch.o fmt_ptime.o unix.a byte.a time.a socket.lib
-	./load svlogd pmatch.o fmt_ptime.o unix.a byte.a time.a \
+	./load svlogd pmatch.o fmt_ptime.o unix.a byte.a time.a -static \
 	`cat socket.lib`
 
 chpst: load chpst.o uidgid.o unix.a byte.a
-	./load chpst uidgid.o unix.a byte.a
+	./load chpst uidgid.o unix.a byte.a -static
 
 runit.o: compile sysdeps runit.c
 	./compile runit.c
