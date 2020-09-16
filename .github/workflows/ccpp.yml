@@ -52,7 +52,7 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: runit.zip
+        name: runit
         path: bin/runit.tar
 
     - name: Release (pre-release)
