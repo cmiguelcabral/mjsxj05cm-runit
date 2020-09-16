@@ -23,17 +23,37 @@ jobs:
     - name: Install ARM cross compiler
       run: sudo apt-get -y install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
-    - name: Compile
-      run: cd compile && make
+    - name: Get uClibc toolchain
+      uses: i3h/download-release-asset@v1
+      with:
+        owner: telmomarques
+        repo: uClibc-toolchain
+        tag: latest
+        file: toolchain.tar
 
-    - name: Package
-      run: cd compile && zip runit.zip runit runsv runsvchdir runsvdir sv svlogd choose chpst load runit-init utmpset
+    - name: Install uClibc ARM cross compiler
+      run: tar -xf toolchain.tar
+
+    - name: Compile libc
+      run: package/compile gcc
+
+    - name: Copy libc executables
+      run: mkdir -p bin/libc && cp compile/{runit,runsv,runsvchdir,runsvdir,sv,svlogd,choose,chpst,load,runit-init,utmpset} bin/libc/
+
+    - name: Compile uClibc
+      run: rm -rf compile && package/compile uclibc
+
+    - name: Copy uClibc executables
+      run: mkdir -p bin/uclibc && cp compile/{runit,runsv,runsvchdir,runsvdir,sv,svlogd,choose,chpst,load,runit-init,utmpset} bin/uclibc/
+
+    - name: Package binaries
+      run: cd bin && tar -cvf runit.tar *
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v1
       with:
         name: runit.zip
-        path: compile/runit.zip
+        path: bin/runit.tar
 
     - name: Release (pre-release)
       if: env.isReleaseCandidate == 'true'
@@ -41,7 +61,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         prerelease: true
-        artifacts: compile/runit.zip
+        artifacts: bin/runit.tar
         
     - name: Update latest-rc tag
       if: env.isReleaseCandidate == 'true'
@@ -52,14 +72,14 @@ jobs:
         allowUpdates: true
         replacesArtifacts: true
         prerelease: true
-        artifacts: compile/runit.zip
+        artifacts: bin/runit.tar
 
     - name: Release (final)
       if: env.isFinalRelease == 'true'
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: compile/runit.zip
+        artifacts: bin/runit.tar
         
     - name: Update latest tag
       if: env.isFinalRelease == 'true'
@@ -69,4 +89,4 @@ jobs:
         tag: latest
         allowUpdates: true
         replacesArtifacts: true
-        artifacts: compile/runit.zip
+        artifacts: bin/runit.tar
