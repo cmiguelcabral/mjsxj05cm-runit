@@ -4,24 +4,17 @@ on:
   push:
     branches:
       - '*'
-    tags:
-      - '*'
+
 env:
-  isReleaseCandidate: ${{ contains(github.ref, 'tags') && contains(github.ref, '-rc') }}
-  isFinalRelease: ${{ contains(github.ref, 'tags') && !contains(github.ref, '-rc') }}
+  isNightly: ${{ contains(github.ref, 'dev') }}
+  isFinalRelease: ${{ contains(github.ref, 'master') }}
 
 jobs:
   build:
-
     runs-on: ubuntu-18.04
-
     steps:
-
     - name: Checkout source code
       uses: actions/checkout@v2
-
-    - name: Install ARM cross compiler
-      run: sudo apt-get -y install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
     - name: Get uClibc toolchain
       uses: i3h/download-release-asset@v1
@@ -34,59 +27,31 @@ jobs:
     - name: Install uClibc ARM cross compiler
       run: tar -xf toolchain.tar
 
-    - name: Compile libc
-      run: package/compile gcc
-
-    - name: Copy libc executables
-      run: mkdir -p bin/libc && cp compile/{runit,runsv,runsvchdir,runsvdir,sv,svlogd,choose,chpst,load,runit-init,utmpset} bin/libc/
-
-    - name: Compile uClibc
+    - name: Compile
       run: rm -rf compile && package/compile uclibc
 
     - name: Copy uClibc executables
-      run: mkdir -p bin/uclibc && cp compile/{runit,runsv,runsvchdir,runsvdir,sv,svlogd,choose,chpst,load,runit-init,utmpset} bin/uclibc/
+      run: mkdir -p dist && cp compile/{runit,runsv,runsvchdir,runsvdir,sv,svlogd,choose,chpst,load,runit-init,utmpset} dist
 
     - name: Package binaries
-      run: cd bin && tar -cvf runit.tar *
+      run: cd dist && tar -cvf runit.tar *
 
-    - name: Upload Build Artifacts
-      uses: actions/upload-artifact@v1
+    - name: Release Candidate
+      uses: marvinpinto/action-automatic-releases@latest
+      if: env.isNightly == 'true'
       with:
-        name: runit
-        path: bin/runit.tar
-
-    - name: Release (pre-release)
-      if: env.isReleaseCandidate == 'true'
-      uses: ncipollo/release-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        automatic_release_tag: latest-rc
+        files: dist/runit.tar
         prerelease: true
-        artifacts: bin/runit.tar
-        
-    - name: Update latest-rc tag
-      if: env.isReleaseCandidate == 'true'
-      uses: ncipollo/release-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag: latest-rc
-        allowUpdates: true
-        replacesArtifacts: true
-        prerelease: true
-        artifacts: bin/runit.tar
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        title: latest-rc
 
-    - name: Release (final)
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
       if: env.isFinalRelease == 'true'
-      uses: ncipollo/release-action@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: bin/runit.tar
-        
-    - name: Update latest tag
-      if: env.isFinalRelease == 'true'
-      uses: ncipollo/release-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag: latest
-        allowUpdates: true
-        replacesArtifacts: true
-        artifacts: bin/runit.tar
+        automatic_release_tag: latest-rc
+        files: dist/runit.tar
+        prerelease: false
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        title: stable
